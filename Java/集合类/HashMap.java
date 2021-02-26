@@ -820,11 +820,12 @@ public class HashMap<K,V> extends AbstractMap<K,V>
                         // e.hash：旧元素的hash值
                         // oldCap：旧数组长度
                         // e.hash & oldCap 表示
-                        // ==0 存放在扩容之后的数组下标位置与旧数组一致
-                        // != 0 存放在扩容之后的数组下标位置=旧数组下标位置 + 旧数组的长度
-                        // 示例：假设当前大小为16 扩容后为31 hash=01010 当前Node的下标是15 则 由下标算法（）可以hash的后四位是1111
-                        // 则计算下标为低位：15 & 01111 => 1111 & 01010 => 01010
-                        // 高位：
+                        // 低位：==0 存放在扩容之后的数组下标位置与旧数组一致
+                        // 高位：!= 0 存放在扩容之后的数组下标位置=旧数组下标位置 + 旧数组的长度
+                        // 示例：假设当前大小为16 扩容后为31 hash=01010 当前Node的下标是15 则 由下标算法(n-1) * hash = 15可以得到hash的后四位是1111
+                        // 则会产生两种情况：
+                        // 1. 当hash为xxxx..01111 则放入1111=>15下标处
+                        // 2. 当hash为xxxx..11111 则也会放入15处，当扩容时将11111加入运算后则会将此hash放入31下标处
                         Node<K,V> next;
                         do {
                             next = e.next;
@@ -903,6 +904,7 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      *         <tt>null</tt> if there was no mapping for <tt>key</tt>.
      *         (A <tt>null</tt> return can also indicate that the map
      *         previously associated <tt>null</tt> with <tt>key</tt>.)
+     * 根据key移除
      */
     public V remove(Object key) {
         Node<K,V> e;
@@ -922,34 +924,49 @@ public class HashMap<K,V> extends AbstractMap<K,V>
      */
     final Node<K,V> removeNode(int hash, Object key, Object value,
                                boolean matchValue, boolean movable) {
+        // tab：临时数组
+        // p：当前下标元素
+        // n：数组长度
+        // index：下标
         Node<K,V>[] tab; Node<K,V> p; int n, index;
         if ((tab = table) != null && (n = tab.length) > 0 &&
                 (p = tab[index = (n - 1) & hash]) != null) {
+            // node：找到的node元素
+            // e：下一个元素
             Node<K,V> node = null, e; K k; V v;
+            // 如果在头结点找到则直接赋值给node
             if (p.hash == hash &&
                     ((k = p.key) == key || (key != null && key.equals(k))))
                 node = p;
-            else if ((e = p.next) != null) {
+            else if ((e = p.next) != null) {    // 如果此时头结点不是则遍历后续链表后续元素
+                // 判断是否是红黑树，查找红黑树
                 if (p instanceof TreeNode)
                     node = ((TreeNode<K,V>)p).getTreeNode(hash, key);
                 else {
+                    // 遍历链表
                     do {
                         if (e.hash == hash &&
                                 ((k = e.key) == key ||
                                         (key != null && key.equals(k)))) {
+                            // 找到了，赋值给node
                             node = e;
                             break;
                         }
+                        // p为链表前一个元素，e为当前元素
                         p = e;
                     } while ((e = e.next) != null);
                 }
             }
+            // 找到node 且 判断是否匹配value
             if (node != null && (!matchValue || (v = node.value) == value ||
                     (value != null && value.equals(v)))) {
+                // 红黑树移除
                 if (node instanceof TreeNode)
                     ((TreeNode<K,V>)node).removeTreeNode(this, tab, movable);
+                // 当头结点为寻找元素时直接将元素的下一个节点指向当前的数组下标
                 else if (node == p)
                     tab[index] = node.next;
+                // 将寻找元素的下个节点指向前一个元素的下个节点
                 else
                     p.next = node.next;
                 ++modCount;

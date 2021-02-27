@@ -12,11 +12,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
  * 共享锁：读读
  */
 public class ReentrantReadWriteLockDemo {
-
     private volatile Map<String, Object> cacheMap = new HashMap<>();
-
     private ReentrantReadWriteLock reentrantReadWriteLock = new ReentrantReadWriteLock();
-
     public void put(String key, Object value) {
         try {
             reentrantReadWriteLock.writeLock().lock();
@@ -30,7 +27,6 @@ public class ReentrantReadWriteLockDemo {
             reentrantReadWriteLock.writeLock().unlock();
         }
     }
-
     public void get(String key) {
         try {
             reentrantReadWriteLock.readLock().lock();
@@ -47,7 +43,6 @@ public class ReentrantReadWriteLockDemo {
             reentrantReadWriteLock.readLock().unlock();
         }
     }
-
     public static void main(String[] args) throws InterruptedException {
         ReentrantReadWriteLockDemo demo = new ReentrantReadWriteLockDemo();
         for (int i = 0; i < 4; i++) {
@@ -55,15 +50,11 @@ public class ReentrantReadWriteLockDemo {
                 demo.put(Thread.currentThread().getName(), UUID.randomUUID().toString());
             }, String.valueOf(i)).start();
         }
-
         TimeUnit.SECONDS.sleep(1);
-
         for (int i = 0; i < 4; i++) {
             new Thread(() -> {
                 demo.get(Thread.currentThread().getName());
             }, String.valueOf(i)).start();
         }
-
     }
-
 }

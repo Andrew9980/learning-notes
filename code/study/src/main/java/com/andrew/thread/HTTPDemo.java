@@ -24,14 +24,6 @@ public class HTTPDemo {
         long time = System.currentTimeMillis();
         ThreadPoolExecutor executor = new ThreadPoolExecutor(10, 80, 1L,
                 TimeUnit.SECONDS, new ArrayBlockingQueue<>(100));
-        List<FutureTask<JSON>> futureTasks = new ArrayList<>();
-//        for (String url : urls) {
-//            DoRequest request = new DoRequest(url);
-//            FutureTask<JSON> futureTask = new FutureTask<>(request);
-//            executor.submit(futureTask);
-//            futureTasks.add(futureTask);
-//        }
-
         List<CompletableFuture<JSONObject>> completableFutures = new ArrayList<>();
         for (String url : urls) {
             completableFutures.add(CompletableFuture.supplyAsync(() -> JSON.parseObject(HttpUtil.doGet(url)), executor));

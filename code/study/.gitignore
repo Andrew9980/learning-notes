@@ -1,0 +1,43 @@
+HELP.md
+/target/
+!.mvn/wrapper/maven-wrapper.jar
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea/
+/.idea/
+.idea/**
+/idea
+*.iws
+*.iml
+*.ipr
+*.DS_Store
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+/build/
+
+### VS Code ###
+.vscode/
+/.mvn/
+/src/test/
+/logs/
+*/target/
+
+#过滤日志文件
+recommend-api/src/main/resources/log4j2-spring.xml
+/recommend-api/src/test/java/com/timing/data/
+/recommend-service/recommend-service.iml
+/.idea/codeStyles/

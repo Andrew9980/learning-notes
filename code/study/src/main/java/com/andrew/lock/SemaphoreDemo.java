@@ -1,7 +1,6 @@
 package com.andrew.lock;
 
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 
 /**
@@ -16,13 +15,14 @@ public class SemaphoreDemo {
     public static void main(String[] args) {
         // 最大允许3个线程并发
         Semaphore semaphore = new Semaphore(3);
+        ExecutorService executor = new ThreadPoolExecutor(2, 4, 1L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(10));
         for (int i = 0; i < 10; i++) {
-            new Thread(() -> {
+            executor.execute(() -> {
                 try {
                     // 请求线程资源
                     semaphore.acquire();
                     System.out.println(Thread.currentThread().getName() + " 线程执行");
-                    TimeUnit.SECONDS.sleep(2);
+                    TimeUnit.SECONDS.sleep(3);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 } finally {
@@ -30,7 +30,8 @@ public class SemaphoreDemo {
                     System.out.println(Thread.currentThread().getName() + " 线程完成");
                     semaphore.release();
                 }
-            }, String.valueOf(i)).start();
+            });
         }
+        executor.shutdown();
     }
 }
